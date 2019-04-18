@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: facebox
+  namespace: openfaas-fn
+spec:
+  selector:
+    matchLabels:
+      app: facebox
+  template:
+    metadata:
+      labels:
+        app: facebox
+    spec:
+      containers:
+      - name: facebox
+        image: machinebox/facebox
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "700m"
+        ports:
+        - containerPort: 8080
+        env:
+          - name: MB_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mb-key
+                key: MB_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: facebox
+  namespace: openfaas-fn
+spec:
+  type: ClusterIP
+  selector:
+    app: facebox
+  ports:
+  - port: 80
+    targetPort: 8080

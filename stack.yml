@@ -1,8 +1,41 @@
 provider:
   name: openfaas
-  gateway: http://127.0.0.1:8080
+  gateway: https://gateway.o6s.matiaspan.me
 functions:
   slack-faces-cmd:
     lang: golang-middleware
     handler: ./slack-faces-cmd
     image: slack-faces-cmd:latest
+    secrets:
+      - slack-token
+    labels:
+      com.openfaas.scale.zero: true
+    environment:
+      teach_function: http://gateway.openfaas.svc.cluster.local:8080/async-function/matipan-teach-faces
+      predict_function: http://gateway.openfaas.svc.cluster.local:8080/async-function/matipan-recognize-faces
+      results_callback: http://gateway.openfaas.svc.cluster.local:8080/function/matipan-slack-faces-result
+      slack_token_secret: /var/openfaas/secrets/slack-token
+  recognize-faces:
+    lang: golang-middleware
+    handler: ./recognize-faces
+    image: recognize-faces:latest
+    labels:
+      com.openfaas.scale.zero: true
+    environment:
+      machinebox_url: http://facebox.openfaas-fn.svc.cluster.local
+  teach-faces:
+    lang: golang-middleware
+    handler: ./teach-faces
+    image: teach-faces:latest
+    labels:
+      com.openfaas.scale.zero: true
+    environment:
+      machinebox_url: http://facebox.openfaas-fn.svc.cluster.local
+  slack-faces-result:
+    lang: golang-middleware
+    handler: ./slack-faces-result
+    image: slack-faces-result:latest
+    labels:
+      com.openfaas.scale.zero: true
+    environment:
+      slack_webhook: https://hooks.slack.com/services/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
