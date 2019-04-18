@@ -1,0 +1,8 @@
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  slack-faces-cmd:
+    lang: golang-middleware
+    handler: ./slack-faces-cmd
+    image: slack-faces-cmd:latest
